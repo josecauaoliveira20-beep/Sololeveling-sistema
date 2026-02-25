@@ -3,178 +3,397 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SYSTEM: SOLO LEVELING ELITE</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <title>SYSTEM: MILITARY CALISTHENICS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --neon: #00e5ff; --bg: #050505; --panel: rgba(0, 15, 30, 0.95); --gold: #ffd700; }
-        body { margin: 0; background: var(--bg); color: white; font-family: 'Orbitron', sans-serif; overflow: hidden; }
-        
-        /* Navegação por Abas */
-        .nav-tabs { position: fixed; bottom: 0; width: 100%; display: flex; background: var(--panel); border-top: 1px solid var(--neon); z-index: 100; }
-        .tab-btn { flex: 1; padding: 15px; color: #555; text-align: center; font-size: 10px; cursor: pointer; transition: 0.3s; }
-        .tab-btn.active { color: var(--neon); background: rgba(0,229,255,0.1); border-top: 2px solid var(--neon); }
+        :root {
+            --bg-color: #1a202c; /* Fundo escuro azulado */
+            --panel-bg: #2d3748; /* Painéis mais claros */
+            --neon: #00e5ff; /* Ciano Solo Leveling */
+            --text-main: #ffffff;
+            --text-muted: #a0aec0;
+            --locked: #4a5568;
+        }
 
-        .screen { display: none; height: calc(100vh - 50px); overflow-y: auto; padding: 20px; box-sizing: border-box; }
+        body {
+            margin: 0;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Roboto', sans-serif;
+            overflow-x: hidden;
+            padding-bottom: 70px; /* Espaço pro menu inferior */
+        }
+
+        h1, h2, h3, .oswald { font-family: 'Oswald', sans-serif; text-transform: uppercase; }
+
+        /* === HUD SUPERIOR (Igual à imagem 1) === */
+        .hud-container {
+            background: rgba(26, 32, 44, 0.95);
+            padding: 15px 10px;
+            border-bottom: 2px solid var(--neon);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .hud-title {
+            text-align: center; font-size: 16px; margin: 0 0 15px 0; letter-spacing: 1px;
+        }
+        .hud-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+        }
+        .hud-box {
+            background: #111827;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            position: relative;
+        }
+        .hud-box-neon { border-color: var(--neon); box-shadow: 0 0 10px rgba(0, 229, 255, 0.1); }
+        .hud-label { font-size: 10px; color: var(--text-muted); font-weight: bold; margin-bottom: 5px; }
+        .hud-value { font-size: 18px; font-weight: bold; font-family: 'Oswald', sans-serif; }
+        .hud-lvl { font-size: 12px; color: var(--neon); margin-top: 5px; }
+        .mission-number { font-size: 45px; color: var(--neon); line-height: 1; font-family: 'Oswald', sans-serif; font-weight: bold; margin-top: 5px;}
+        
+        .xp-bar-container { width: 100%; background: #374151; height: 4px; border-radius: 2px; margin-top: 10px; position: relative; }
+        .xp-bar-fill { height: 100%; background: var(--neon); width: 0%; border-radius: 2px; transition: 0.5s; }
+        .xp-text { font-size: 8px; color: var(--text-muted); position: absolute; right: 0; top: -12px; }
+
+        /* === TELAS (Abas) === */
+        .screen { display: none; padding: 15px; animation: fadeIn 0.3s ease; }
         .screen.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* HUD & Cards */
-        .card { background: var(--panel); border: 1px solid #222; padding: 15px; margin-bottom: 15px; border-radius: 5px; }
-        .neon-border { border-color: var(--neon); box-shadow: 0 0 10px rgba(0,229,255,0.2); }
-        .rank-tag { color: var(--gold); font-size: 24px; font-weight: bold; }
+        /* === CARDS DE TREINO (Igual à imagem 2 - SOLDADO) === */
+        .section-title { font-size: 18px; text-align: center; margin-bottom: 20px; letter-spacing: 2px; color: #e2e8f0; }
+        .mission-card {
+            background: var(--panel-bg);
+            border: 2px solid var(--neon);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; transition: 0.2s;
+        }
+        .mission-card.locked { border-color: var(--locked); opacity: 0.7; pointer-events: none; }
+        .m-info h3 { margin: 0; font-size: 16px; color: white; }
+        .m-status { font-size: 10px; color: var(--neon); margin-top: 5px; font-weight: bold; }
+        .locked .m-status { color: #f56565; }
+        .m-icon { font-size: 30px; }
+
+        /* === DEVOCIONAL (Igual à imagem 3) === */
+        .devo-card { background: var(--panel-bg); padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .devo-text { font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-top: 10px; }
+        .themes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .theme-btn { background: #1f2937; border: 1px solid #4b5563; padding: 20px; border-radius: 8px; text-align: center; cursor: pointer; }
+        .theme-btn:active { background: #374151; }
+        .theme-icon { font-size: 24px; margin-bottom: 10px; color: var(--neon); }
+
+        /* === MULTIMÍDIA (Igual à imagem 4) === */
+        .media-player { background: #111827; padding: 20px; border-radius: 8px; text-align: center; border: 1px solid #374151;}
+        .album-art { width: 100px; height: 100px; background: #374151; border-radius: 8px; margin: 0 auto 15px auto; display: flex; align-items: center; justify-content: center; font-size: 40px;}
+        .track-title { font-size: 16px; font-weight: bold; font-family: 'Oswald', sans-serif;}
+        .track-time { font-size: 12px; color: var(--neon); margin: 10px 0; }
+        .controls { display: flex; justify-content: center; gap: 20px; margin-top: 15px; }
+        .ctrl-btn { background: none; border: none; color: var(--neon); font-size: 20px; cursor: pointer; }
         
-        /* Central Multimídia */
-        #music-player { text-align: center; }
+        .upload-btn { background: var(--neon); color: black; border: none; padding: 10px; border-radius: 5px; font-weight: bold; width: 100%; margin-top: 20px; font-family: 'Oswald'; }
         input[type="file"] { display: none; }
-        .custom-file-upload { border: 1px solid var(--neon); display: inline-block; padding: 10px; cursor: pointer; font-size: 10px; margin-top: 10px; }
 
-        /* Bíblia & Devocional */
-        .devotional-text { font-family: serif; font-style: italic; color: #ccc; line-height: 1.6; font-size: 14px; }
+        /* === BÍBLIA === */
+        select { background: var(--panel-bg); color: white; border: 1px solid var(--neon); padding: 10px; font-family: 'Roboto'; width: 100%; margin-bottom: 10px; border-radius: 5px;}
+        .bible-content { font-size: 14px; line-height: 1.8; color: #cbd5e1; margin-top: 15px; padding: 10px; background: #111827; border-radius: 5px;}
 
-        /* Treino Sensor */
-        #sensor-visual { width: 100px; height: 100px; border-radius: 50%; border: 2px solid var(--neon); margin: 20px auto; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .sensor-active { background: var(--neon); box-shadow: 0 0 30px var(--neon); }
+        /* === NAVEGAÇÃO INFERIOR === */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: #1a202c; border-top: 1px solid #2d3748;
+            display: flex; justify-content: space-around; padding: 10px 0; z-index: 100;
+        }
+        .nav-item { text-align: center; color: var(--text-muted); font-size: 10px; cursor: pointer; flex: 1; }
+        .nav-item.active { color: var(--neon); }
+        .nav-icon { font-size: 20px; margin-bottom: 3px; display: block;}
+
+        /* Botão Acelerômetro */
+        .btn-sensor { background: #2b6cb0; color: white; border: none; padding: 15px; width: 100%; border-radius: 5px; font-weight: bold; font-family: 'Oswald'; margin-top: 20px; }
     </style>
 </head>
 <body>
 
+<div class="hud-container">
+    <h2 class="hud-title">SYSTEM: MILITARY CALISTHENICS</h2>
+    <div class="hud-grid">
+        <div class="hud-box">
+            <div class="hud-label">STATUS</div>
+            <div class="hud-value" id="hud-rank">RANK E</div>
+            <div class="hud-lvl">LEVEL <span id="hud-lvl-num" style="color:white">01</span></div>
+            <div class="xp-bar-container">
+                <div class="xp-text" id="hud-xp-txt">0%</div>
+                <div class="xp-bar-fill" id="hud-xp-fill"></div>
+            </div>
+        </div>
+        <div class="hud-box hud-box-neon">
+            <div class="hud-label">MISSION</div>
+            <div class="hud-value" id="hud-mission-name" style="font-size: 12px;">SELECIONE MISSÃO</div>
+            <div class="mission-number" id="hud-reps">00</div>
+        </div>
+    </div>
+</div>
+
 <div id="tab-train" class="screen active">
-    <div class="card neon-border">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div>
-                <div style="font-size: 10px; color: var(--neon);">STATUS DO CAÇADOR</div>
-                <div id="rank-val" class="rank-tag">E</div>
-            </div>
-            <div style="text-align:right">
-                <div id="lvl-val">LEVEL 01</div>
-                <div id="xp-pct" style="font-size: 10px; color: var(--neon);">XP 0%</div>
-            </div>
+    <h2 class="section-title oswald">SOLDADO</h2>
+
+    <div class="mission-card" onclick="startMission('FLEXÕES PADRÃO', 0)">
+        <div class="m-info">
+            <h3 class="oswald">FLEXÕES PADRÃO</h3>
+            <div class="m-status">[ UNLOCKED ]</div>
+        </div>
+        <div class="m-icon">🏋️‍♂️</div>
+    </div>
+
+    <div class="mission-card locked" id="card-diamante" onclick="startMission('FLEXÕES DIAMANTE', 5)">
+        <div class="m-info">
+            <h3 class="oswald">FLEXÕES DIAMANTE</h3>
+            <div class="m-status">[ LOCKED - LVL 5 ]</div>
+        </div>
+        <div class="m-icon">💪</div>
+    </div>
+
+    <div class="mission-card locked" id="card-burpee" onclick="startMission('BURPEE MILITAR', 10)">
+        <div class="m-info">
+            <h3 class="oswald">BURPEE MILITAR</h3>
+            <div class="m-status">[ LOCKED - LVL 10 ]</div>
+        </div>
+        <div class="m-icon">🔥</div>
+    </div>
+
+    <button id="btn-sensor" class="btn-sensor" onclick="toggleMotion()">▶ INICIAR RASTREIO DE MOVIMENTO</button>
+    <p style="text-align:center; font-size:10px; color:#a0aec0; margin-top:10px;">Ative o rastreio e prenda o celular ao corpo.</p>
+</div>
+
+<div id="tab-devo" class="screen">
+    <h2 class="section-title oswald">TRENUS (ESPÍRITO)</h2>
+    
+    <div class="devo-card">
+        <h3 class="oswald" style="margin:0; color:var(--neon); font-size:16px;">DEVOCIONAL DIÁRIO</h3>
+        <div class="devo-text" id="devo-text-area">
+            "A disciplina física é proveitosa, mas a piedade para tudo é proveitosa..." Selecione um tema abaixo para fortalecer sua mente antes do combate diário.
         </div>
     </div>
 
-    <div class="card">
-        <div style="color: var(--neon); font-size: 12px; margin-bottom: 10px;">PRESCRIÇÃO CIENTÍFICA</div>
-        <div id="routine-desc" style="font-size: 14px;">Carregando rotina...</div>
+    <h3 class="oswald" style="font-size: 14px; margin-bottom: 15px;">TEMAS</h3>
+    <div class="themes-grid">
+        <div class="theme-btn" onclick="setDevo('RESILIÊNCIA', 'Josué 1:9 - Seja forte e corajoso! Na calistenia, a dor reconstrói os músculos. Na vida, as provações constroem o caráter. Não desista.')">
+            <div class="theme-icon">🛡️</div>
+            <div class="oswald" style="font-size:12px;">RESILIÊNCIA</div>
+        </div>
+        <div class="theme-btn" onclick="setDevo('DISCIPLINA', '1 Coríntios 9:27 - Esmurro meu corpo e o faço meu escravo. A motivação falha, mas a disciplina militar se mantém. Cumpra sua missão.')">
+            <div class="theme-icon">⚔️</div>
+            <div class="oswald" style="font-size:12px;">DISCIPLINA</div>
+        </div>
     </div>
 
-    <div id="sensor-visual">
-        <div id="rep-count" style="font-size: 40px; font-weight: bold;">0</div>
-    </div>
-    <p style="text-align:center; font-size: 9px; color: #666;">COLOQUE O CELULAR NO CHÃO ABAIXO DO PEITO<br>(O sensor de proximidade contará as repetições)</p>
-</div>
-
-<div id="tab-bible" class="screen">
-    <h2 style="color: var(--gold);">DEVOCIONAL DIÁRIO</h2>
-    <div class="card">
-        <div id="bible-verse" class="devotional-text">"Pois Deus não nos deu espírito de covardia, mas de poder, de amor e de equilíbrio."</div>
-        <div style="margin-top:10px; font-size: 12px; color: var(--neon);">2 Timóteo 1:7</div>
-    </div>
-    <div class="card">
-        <div style="color: var(--neon); font-size: 12px; margin-bottom: 5px;">REFLEXÃO</div>
-        <p style="font-size: 13px; color: #aaa;">O treinamento físico é valioso, mas a disciplina espiritual é eterna. Fortaleça sua mente hoje tanto quanto seu corpo.</p>
-    </div>
+    <h3 class="oswald" style="font-size: 14px; margin-top: 30px; border-top: 1px solid #374151; padding-top:20px;">ACERVO BÍBLICO</h3>
+    <select id="bible-books" onchange="loadChapters()"><option>Carregando livros...</option></select>
+    <select id="bible-chapters" onchange="fetchVerses()"><option>Capítulo</option></select>
+    <div id="bible-content" class="bible-content">A palavra será carregada aqui...</div>
 </div>
 
 <div id="tab-media" class="screen">
-    <h2>CENTRAL MULTIMÍDIA</h2>
-    <div class="card" id="music-player">
-        <div id="track-name" style="font-size: 12px; margin-bottom: 10px;">Nenhuma música carregada</div>
-        <audio id="audio-ctrl" controls style="width:100%"></audio>
-        <label class="custom-file-upload">
-            <input type="file" id="load-music" accept="audio/*" multiple/>
-            CARREGAR MÚSICAS DO CELULAR
+    <h2 class="section-title oswald">CENTRAL MULTIMÍDIA</h2>
+
+    <div class="media-player">
+        <div class="album-art">🎵</div>
+        <div class="track-title" id="track-name">Nenhuma faixa selecionada</div>
+        <div class="track-time">▶ PLAYER PRONTO</div>
+        
+        <audio id="audio-player" style="display:none;" ontimeupdate="updateAudioTime()"></audio>
+
+        <div class="controls">
+            <button class="ctrl-btn" onclick="document.getElementById('audio-player').currentTime -= 10">⏪</button>
+            <button class="ctrl-btn" onclick="toggleAudio()" id="play-btn" style="font-size: 30px;">▶</button>
+            <button class="ctrl-btn" onclick="document.getElementById('audio-player').currentTime += 10">⏩</button>
+        </div>
+
+        <label class="upload-btn" style="display:block; cursor:pointer;">
+            <input type="file" id="load-music" accept="audio/*">
+            CARREGAR MÚSICA LOCAL
         </label>
     </div>
 </div>
 
-<div class="nav-tabs">
-    <div class="tab-btn active" onclick="openTab('tab-train', this)">TREINO</div>
-    <div class="tab-btn" onclick="openTab('tab-bible', this)">BÍBLIA</div>
-    <div class="tab-btn" onclick="openTab('tab-media', this)">MÚSICA</div>
+<div class="bottom-nav">
+    <div class="nav-item active" onclick="switchTab('tab-train', this)">
+        <span class="nav-icon">📋</span>
+        TREINOS
+    </div>
+    <div class="nav-item" onclick="switchTab('tab-devo', this)">
+        <span class="nav-icon">📖</span>
+        BÍBLIA
+    </div>
+    <div class="nav-item" onclick="switchTab('tab-media', this)">
+        <span class="nav-icon">🎵</span>
+        MÚSICA
+    </div>
 </div>
 
 <script>
-    let level = parseInt(localStorage.getItem('sl_lvl')) || 1;
-    let xp = parseInt(localStorage.getItem('sl_xp')) || 0;
+    // === ESTADO DO SISTEMA ===
+    let level = parseInt(localStorage.getItem('sys_lvl')) || 1;
+    let xp = parseInt(localStorage.getItem('sys_xp')) || 0;
     let reps = 0;
-    let proximityActive = false;
+    let isTracking = false;
+    let lastZ = 0;
 
-    // Ciência do Treino (Baseado no Rank)
-    const routines = {
-        E: { name: "Recruta", series: 3, reps: 8, rest: 90 },
-        D: { name: "Soldado", series: 4, reps: 12, rest: 60 },
-        C: { name: "Comando", series: 5, reps: 15, rest: 45 },
-        S: { name: "Monarca", series: 6, reps: 25, rest: 30 }
-    };
-
-    function openTab(tabId, btn) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-        btn.classList.add('active');
-    }
-
-    function speak(t) {
-        const s = new SpeechSynthesisUtterance(t);
-        s.lang = 'pt-BR';
-        window.speechSynthesis.speak(s);
-    }
-
+    // === INICIALIZAÇÃO E HUD ===
     function updateHUD() {
-        let rank = level < 5 ? 'E' : level < 15 ? 'D' : level < 30 ? 'C' : 'S';
-        document.getElementById('rank-val').innerText = rank;
-        document.getElementById('lvl-val').innerText = "LEVEL " + level.toString().padStart(2, '0');
-        document.getElementById('xp-pct').innerText = "XP " + xp + "%";
+        let rank = level < 5 ? 'E' : level < 10 ? 'D' : level < 20 ? 'C' : 'S';
+        document.getElementById('hud-rank').innerText = `RANK ${rank}`;
+        document.getElementById('hud-lvl-num').innerText = level.toString().padStart(2, '0');
+        document.getElementById('hud-xp-txt').innerText = xp + "%";
+        document.getElementById('hud-xp-fill').style.width = xp + "%";
         
-        let r = routines[rank];
-        document.getElementById('routine-desc').innerHTML = `
-            <strong>Meta:</strong> ${r.series} Séries de ${r.reps} Repetições<br>
-            <strong>Descanso:</strong> ${r.rest}s entre séries
-        `;
-
-        localStorage.setItem('sl_lvl', level);
-        localStorage.setItem('sl_xp', xp);
+        // Atualiza cadeados na aba Treino
+        if(level >= 5) {
+            let c = document.getElementById('card-diamante');
+            c.classList.remove('locked');
+            c.querySelector('.m-status').innerText = "[ UNLOCKED ]";
+            c.querySelector('.m-status').style.color = "var(--neon)";
+        }
+        if(level >= 10) {
+            let c = document.getElementById('card-burpee');
+            c.classList.remove('locked');
+            c.querySelector('.m-status').innerText = "[ UNLOCKED ]";
+            c.querySelector('.m-status').style.color = "var(--neon)";
+        }
     }
 
-    // Lógica do Sensor de Proximidade (Auto-Count)
-    if ('ProximitySensor' in window) {
+    // === LÓGICA DE NAVEGAÇÃO ===
+    function switchTab(tabId, btnElement) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        btnElement.classList.add('active');
+    }
+
+    // === MISSÃO & ACELERÔMETRO ===
+    function startMission(name, reqLvl) {
+        if(level < reqLvl) {
+            alert(`SISTEMA BLOQUEADO: Requer Level ${reqLvl}`);
+            return;
+        }
+        reps = 0;
+        document.getElementById('hud-mission-name').innerText = name;
+        document.getElementById('hud-reps').innerText = "00";
+        window.scrollTo(0,0);
+    }
+
+    function toggleMotion() {
+        let btn = document.getElementById('btn-sensor');
+        if (!isTracking) {
+            // Solicitar permissão para iOS se necessário
+            if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+                DeviceMotionEvent.requestPermission().then(state => {
+                    if (state === 'granted') startTracking(btn);
+                    else alert("Permissão de movimento negada.");
+                }).catch(console.error);
+            } else {
+                startTracking(btn);
+            }
+        } else {
+            stopTracking(btn);
+        }
+    }
+
+    function startTracking(btn) {
+        isTracking = true;
+        btn.innerText = "⏹ PARAR RASTREIO";
+        btn.style.background = "#e53e3e"; // Vermelho
+        window.addEventListener('devicemotion', motionHandler);
+    }
+
+    function stopTracking(btn) {
+        isTracking = false;
+        btn.innerText = "▶ INICIAR RASTREIO DE MOVIMENTO";
+        btn.style.background = "#2b6cb0"; // Azul
+        window.removeEventListener('devicemotion', motionHandler);
+    }
+
+    function motionHandler(event) {
+        let z = event.accelerationIncludingGravity.z;
+        if (Math.abs(z - lastZ) > 10) { // Limiar de detecção
+            reps++;
+            xp += 2;
+            document.getElementById('hud-reps').innerText = reps.toString().padStart(2, '0');
+            
+            if (xp >= 100) { xp = 0; level++; }
+            
+            localStorage.setItem('sys_lvl', level);
+            localStorage.setItem('sys_xp', xp);
+            updateHUD();
+        }
+        lastZ = z;
+    }
+
+    // === DEVOCIONAL E BÍBLIA ===
+    function setDevo(title, text) {
+        document.getElementById('devo-text-area').innerHTML = `<strong>${title}</strong><br><br>${text}`;
+    }
+
+    async function loadBooks() {
         try {
-            const sensor = new ProximitySensor({ threshold: 5 });
-            sensor.onreading = () => {
-                if (sensor.near && !proximityActive) {
-                    proximityActive = true;
-                    document.getElementById('sensor-visual').classList.add('sensor-active');
-                } else if (!sensor.near && proximityActive) {
-                    proximityActive = false;
-                    document.getElementById('sensor-visual').classList.remove('sensor-active');
-                    reps++;
-                    xp += 5;
-                    if(xp >= 100) { xp = 0; level++; speak("Level Up"); }
-                    document.getElementById('rep-count').innerText = reps;
-                    speak(reps);
-                    updateHUD();
-                }
-            };
-            sensor.start();
-        } catch(e) { console.log("Sensor de hardware indisponível"); }
-    } else {
-        // Fallback para toque se o sensor não for suportado pelo navegador
-        document.getElementById('sensor-visual').onclick = () => {
-            reps++; xp += 5; updateHUD(); 
-            document.getElementById('rep-count').innerText = reps;
-            speak(reps);
-        };
+            const res = await fetch('https://www.abibliadigital.com.br/api/books');
+            const books = await res.json();
+            let html = '<option>Selecione o Livro</option>';
+            books.forEach(b => html += `<option value="${b.abbrev.pt}">${b.name}</option>`);
+            document.getElementById('bible-books').innerHTML = html;
+        } catch(e) { console.log("Erro API Bíblia"); }
     }
 
-    // Gerenciador de Música
+    async function loadChapters() {
+        const abbrev = document.getElementById('bible-books').value;
+        const res = await fetch(`https://www.abibliadigital.com.br/api/books/${abbrev}`);
+        const book = await res.json();
+        let html = '<option>Capítulo</option>';
+        for(let i=1; i<=book.chapters; i++) html += `<option value="${i}">${i}</option>`;
+        document.getElementById('bible-chapters').innerHTML = html;
+    }
+
+    async function fetchVerses() {
+        const abbrev = document.getElementById('bible-books').value;
+        const chap = document.getElementById('bible-chapters').value;
+        document.getElementById('bible-content').innerHTML = "Buscando dados no servidor celestial...";
+        const res = await fetch(`https://www.abibliadigital.com.br/api/verses/nvi/${abbrev}/${chap}`);
+        const data = await res.json();
+        let html = '';
+        data.verses.forEach(v => html += `<p><strong>${v.number}</strong> ${v.text}</p>`);
+        document.getElementById('bible-content').innerHTML = html;
+    }
+
+    // === MULTIMÍDIA ===
+    const audioPlayer = document.getElementById('audio-player');
+    const playBtn = document.getElementById('play-btn');
+
     document.getElementById('load-music').addEventListener('change', function(e){
         const file = e.target.files[0];
-        const url = URL.createObjectURL(file);
-        document.getElementById('track-name').innerText = file.name;
-        document.getElementById('audio-ctrl').src = url;
-        document.getElementById('audio-ctrl').play();
+        if(file) {
+            document.getElementById('track-name').innerText = file.name.substring(0, 25) + '...';
+            audioPlayer.src = URL.createObjectURL(file);
+            audioPlayer.play();
+            playBtn.innerText = "⏸";
+        }
     });
 
+    function toggleAudio() {
+        if(!audioPlayer.src) return;
+        if(audioPlayer.paused) {
+            audioPlayer.play(); playBtn.innerText = "⏸";
+        } else {
+            audioPlayer.pause(); playBtn.innerText = "▶";
+        }
+    }
+
+    // Init
     updateHUD();
+    loadBooks();
 </script>
 </body>
 </html>
