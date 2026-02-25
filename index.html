@@ -2,152 +2,158 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solo Leveling: Eternal System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SYSTEM: SOLO LEVELING EVOLUTION</title>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --neon: #00e5ff; --bg: #050505; --punish: #ff0055; }
+        :root { --neon: #00e5ff; --bg: #050505; --punish: #ff0055; --gold: #ffd700; }
         body { margin: 0; background: var(--bg); color: white; font-family: 'Orbitron', sans-serif; overflow: hidden; }
         
-        #menu { position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .btn-missao { background: rgba(0,229,255,0.1); border: 1px solid var(--neon); color: var(--neon); padding: 15px; margin: 8px; width: 85%; font-size: 14px; text-transform: uppercase; cursor: pointer; transition: 0.3s; }
-        .btn-missao:active { background: var(--neon); color: black; }
+        /* Telas Flutuantes HUD */
+        .panel { position: absolute; background: rgba(0, 10, 20, 0.85); border: 1px solid var(--neon); box-shadow: 0 0 15px rgba(0, 229, 255, 0.2); padding: 12px; z-index: 10; backdrop-filter: blur(5px); }
+        #menu { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; background: radial-gradient(circle, #0a1a2a 0%, #050505 100%); z-index: 100; position: absolute; overflow-y: auto; padding-top: 20px; }
         
-        .status-header { margin-bottom: 20px; border: 1px solid var(--neon); padding: 15px; width: 80%; box-shadow: 0 0 15px rgba(0,229,255,0.3); }
+        .btn-system { background: rgba(0, 229, 255, 0.05); border: 1px solid var(--neon); color: var(--neon); padding: 15px; margin: 8px; width: 85%; text-transform: uppercase; cursor: pointer; font-family: 'Orbitron'; font-size: 12px; }
+        .btn-system:disabled { border-color: #444; color: #444; opacity: 0.5; }
 
-        /* HUD Punição */
-        #punishment-screen { position: absolute; width: 100%; height: 100%; background: rgba(50,0,0,0.9); z-index: 20; display: none; flex-direction: column; align-items: center; justify-content: center; border: 10px double var(--punish); box-sizing: border-box; }
-        
+        /* Aba de Estatísticas */
+        #stats-panel { display: none; width: 85%; background: rgba(0,0,0,0.8); border: 1px solid var(--neon); padding: 15px; margin-top: 10px; font-size: 11px; }
+        .stat-line { display: flex; justify-content: space-between; margin-bottom: 5px; border-bottom: 1px solid rgba(0,229,255,0.2); padding-bottom: 2px; }
+
+        /* Câmera e HUD */
         #video-container { position: relative; width: 100vw; height: 100vh; display: none; }
-        video, canvas { position: absolute; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
-        .xp-bar { position: absolute; bottom: 20px; left: 10%; width: 80%; height: 8px; border: 1px solid var(--neon); z-index: 5; background: rgba(0,0,0,0.5); }
-        #xp-fill { width: 0%; height: 100%; background: var(--neon); box-shadow: 0 0 10px var(--neon); transition: 0.4s; }
+        video { position: absolute; width: 100%; height: 100%; transform: scaleX(-1); visibility: hidden; }
+        canvas { position: absolute; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+        
+        .hud-top { top: 20px; left: 20px; border-left: 4px solid var(--neon); }
+        .hud-count { top: 20px; right: 20px; text-align: right; border-right: 4px solid var(--neon); }
+        .xp-bar { position: absolute; bottom: 30px; left: 10%; width: 80%; height: 6px; border: 1px solid var(--neon); background: #000; overflow: hidden; }
+        #xp-fill { width: 0%; height: 100%; background: var(--neon); transition: 0.3s; }
     </style>
 </head>
 <body>
 
-<div id="punishment-screen">
-    <h1 style="color: var(--punish); text-shadow: 0 0 20px var(--punish);">PUNIÇÃO DO SISTEMA</h1>
-    <p style="padding: 20px;">VOCÊ FALHOU EM MANTER A DISCIPLINA. XP REDUZIDO.</p>
-    <button class="btn-missao" style="border-color: var(--punish); color: var(--punish);" onclick="aceitarPunicao()">ACEITAR E CONTINUAR</button>
-</div>
-
 <div id="menu">
-    <div class="status-header">
-        <h1 style="margin:0; font-size: 20px; color: var(--neon);">STATUS DO JOGADOR</h1>
-        <div id="player-lvl" style="font-size: 24px; margin: 10px 0;">NÍVEL: 01</div>
-        <div id="xp-text" style="font-size: 12px; color: var(--neon);">XP: 0/100</div>
+    <div class="panel" style="position: relative; width: 80%; margin-bottom: 20px;">
+        <div style="font-size: 10px; color: var(--neon);">STATUS DO CAÇADOR</div>
+        <div id="main-lvl" style="font-size: 24px;">LVL 01</div>
+        <div id="main-rank" style="font-size: 12px; color: var(--gold);">RANK: E</div>
     </div>
-    <button class="btn-missao" onclick="iniciarTreino('flexao')">Missão: Flexões</button>
-    <button class="btn-missao" onclick="iniciarTreino('agachamento')">Missão: Agachamentos</button>
-    <label class="btn-missao" style="display: block; width: 77%;">
-        <input type="file" id="musicInput" accept="audio/*" multiple style="display:none">
-        Músicas do Celular 🎵
+
+    <button class="btn-system" onclick="toggleStats()">📊 Ver Histórico de Treino</button>
+    <div id="stats-panel">
+        <h3 style="color: var(--neon); margin-top:0;">REGISTROS DO SISTEMA</h3>
+        <div id="stats-content">Nenhum dado registrado.</div>
+    </div>
+
+    <div style="font-size: 10px; margin-top: 20px;">MISSÕES ATIVAS</div>
+    <button class="btn-system" onclick="start('flexao')">Missão: Flexão</button>
+    <button class="btn-system" id="btn-agachamento" onclick="start('agachamento')">Bloqueado: Nvl 5 (Agachamento)</button>
+    
+    <label class="btn-system" style="display: block; width: 77%; text-align: center;">
+        <input type="file" id="msc" accept="audio/*" style="display:none"> CARREGAR OST 🎵
     </label>
 </div>
 
 <div id="video-container">
-    <video id="input_video"></video>
-    <canvas id="output_canvas"></canvas>
+    <video id="v" playsinline></video>
+    <canvas id="c"></canvas>
+    <div class="panel hud-top">
+        <div id="hud-lvl">LVL 01</div>
+        <div style="font-size: 8px; color: var(--neon);">MONITORAMENTO DE IA</div>
+    </div>
+    <div class="panel hud-count">
+        <div style="font-size: 8px;">REPS</div>
+        <div id="count-val" style="font-size: 32px;">00</div>
+    </div>
     <div class="xp-bar"><div id="xp-fill"></div></div>
 </div>
 
-<audio id="bgMusic" loop></audio>
+<audio id="audio" loop></audio>
 
 <script>
-let xp = parseInt(localStorage.getItem('system_xp')) || 0;
-let level = parseInt(localStorage.getItem('system_level')) || 1;
-let lastTrain = localStorage.getItem('last_train_date');
-let count = 0;
-let stage = 'up';
+let count = 0, stage = 'up', tipo = '', xp = parseInt(localStorage.getItem('xp')) || 0, lvl = parseInt(localStorage.getItem('lvl')) || 1;
+let history = JSON.parse(localStorage.getItem('workout_history')) || [];
+let skills = JSON.parse(localStorage.getItem('skills')) || { agachamento: false };
 
-// Lógica de Punição
-function verificarPunicao() {
-    if (lastTrain) {
-        let diff = Date.now() - parseInt(lastTrain);
-        let horas = diff / (1000 * 60 * 60);
-        
-        if (horas > 24) {
-            xp = Math.max(0, xp - 30); // Perde 30 de XP
-            document.getElementById('punishment-screen').style.display = 'flex';
-            falar("Aviso. Você foi punido por negligência. XP reduzido.");
-            salvarProgresso();
-        }
-    }
+function speak(t) { const s = new SpeechSynthesisUtterance(t); s.lang='pt-BR'; window.speechSynthesis.speak(s); }
+
+function toggleStats() {
+    const p = document.getElementById('stats-panel');
+    p.style.display = p.style.display === 'block' ? 'none' : 'block';
+    renderStats();
 }
 
-function aceitarPunicao() {
-    document.getElementById('punishment-screen').style.display = 'none';
-    atualizarUI();
+function renderStats() {
+    const cont = document.getElementById('stats-content');
+    if(history.length === 0) return;
+    cont.innerHTML = history.slice(-5).reverse().map(h => `
+        <div class="stat-line">
+            <span>${h.data}</span>
+            <span style="color:var(--neon)">${h.tipo}: ${h.reps} reps</span>
+        </div>
+    `).join('');
 }
 
-function salvarProgresso() {
-    localStorage.setItem('system_level', level);
-    localStorage.setItem('system_xp', xp);
-    localStorage.setItem('last_train_date', Date.now().toString());
-}
-
-function atualizarUI() {
-    document.getElementById('player-lvl').innerText = "NÍVEL: " + level.toString().padStart(2, '0');
-    document.getElementById('xp-text').innerText = `XP: ${xp}/100`;
+function updateUI() {
+    document.getElementById('main-lvl').innerText = "LVL " + lvl.toString().padStart(2, '0');
+    document.getElementById('hud-lvl').innerText = "LVL " + lvl.toString().padStart(2, '0');
     document.getElementById('xp-fill').style.width = xp + "%";
-}
-
-function falar(t) {
-    const s = new SpeechSynthesisUtterance(t);
-    s.lang = 'pt-BR';
-    window.speechSynthesis.speak(s);
-}
-
-// Configuração de Música
-const musicInput = document.getElementById('musicInput');
-const bgMusic = document.getElementById('bgMusic');
-musicInput.onchange = (e) => {
-    const url = URL.createObjectURL(e.target.files[0]);
-    bgMusic.src = url;
-};
-
-function iniciarTreino(tipo) {
-    tipoTreino = tipo;
-    document.getElementById('menu').style.display = 'none';
-    document.getElementById('video-container').style.display = 'block';
-    if(bgMusic.src) bgMusic.play();
-    falar("Iniciando monitoramento de " + tipo);
-    startCamera();
-}
-
-// MediaPipe e Lógica de Movimento (Igual ao anterior...)
-const pose = new Pose({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`});
-pose.setOptions({ modelComplexity: 1, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
-pose.onResults((results) => {
-    if (results.poseLandmarks) {
-        const lm = results.poseLandmarks;
-        let detect = (tipoTreino === 'flexao') ? (lm[13].y > lm[11].y + 0.1) : (lm[25].y < lm[23].y + 0.15);
-        
-        if (detect && stage === 'up') stage = 'down';
-        if (!detect && stage === 'down') {
-            stage = 'up';
-            count++;
-            xp += 10;
-            if(xp >= 100) { xp = 0; level++; falar("Level up!"); }
-            atualizarUI();
-            salvarProgresso();
-        }
+    const rank = lvl < 10 ? "E" : lvl < 20 ? "D" : lvl < 30 ? "C" : lvl < 40 ? "B" : lvl < 50 ? "A" : "S";
+    document.getElementById('main-rank').innerText = "RANK: " + rank;
+    document.getElementById('btn-agachamento').disabled = !skills.agachamento && lvl < 5;
+    if(lvl >= 5) {
+        skills.agachamento = true;
+        document.getElementById('btn-agachamento').innerText = "Missão: Agachamento";
     }
-});
-
-function startCamera() {
-    new Camera(document.getElementById('input_video'), {
-        onFrame: async () => { await pose.send({image: document.getElementById('input_video')}); },
-        width: 640, height: 480
-    }).start();
 }
 
-verificarPunicao();
-atualizarUI();
+function start(t) {
+    tipo = t; count = 0;
+    document.getElementById('menu').style.display='none'; 
+    document.getElementById('video-container').style.display='block';
+    if(document.getElementById('audio').src) document.getElementById('audio').play();
+    speak("Sistema ativo. Comece.");
+    initIA();
+}
+
+function finalizarTreino() {
+    const data = new Date().toLocaleDateString('pt-BR');
+    history.push({ data, tipo, reps: count });
+    localStorage.setItem('workout_history', JSON.stringify(history));
+    localStorage.setItem('lvl', lvl);
+    localStorage.setItem('xp', xp);
+    localStorage.setItem('skills', JSON.stringify(skills));
+}
+
+function initIA() {
+    const pose = new Pose({locateFile: (f) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${f}`});
+    pose.setOptions({ modelComplexity: 0, minDetectionConfidence: 0.5 });
+    
+    pose.onResults((res) => {
+        const ctx = document.getElementById('c').getContext('2d');
+        ctx.clearRect(0,0,480,480);
+        ctx.drawImage(res.image, 0, 0, 480, 480);
+        if (res.poseLandmarks) {
+            const lm = res.poseLandmarks;
+            let move = (tipo === 'flexao') ? (lm[13].y > lm[11].y + 0.1) : (lm[25].y < lm[23].y + 0.15);
+            if(move && stage === 'up') stage = 'down';
+            if(!move && stage === 'down') {
+                stage = 'up'; count++; xp += 15;
+                if(xp >= 100) { xp = 0; lvl++; speak("Level Up"); }
+                document.getElementById('count-val').innerText = count.toString().padStart(2, '0');
+                updateUI();
+                finalizarTreino();
+                speak(count);
+            }
+        }
+    });
+
+    new Camera(document.getElementById('v'), { onFrame: async () => { await pose.send({image: document.getElementById('v')}); }, width: 480, height: 480 }).start();
+}
+updateUI();
 </script>
 </body>
 </html>
