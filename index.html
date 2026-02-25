@@ -3,265 +3,243 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SYSTEM: SHADOW MONARCH</title>
+    <title>SISTEMA: ARISE</title>
+    
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" href="https://i.imgur.com/8Q9Z5Ym.png">
+
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --blue-system: #00d2ff;
-            --dark-window: rgba(6, 11, 25, 0.95);
-            --border-glow: #008cff;
-            --mana-color: #9d00ff;
-            --hp-color: #ff004c;
-            --text-muted: #a0aec0;
+            --cyan: #00d2ff;
+            --dark: #02050a;
+            --window: rgba(6, 11, 25, 0.95);
+            --border: #008cff;
+            --xp: #9d00ff;
         }
 
         body {
-            margin: 0; padding: 0;
-            background: #02050a radial-gradient(circle, #0a1525 0%, #02050a 100%);
-            color: white;
-            font-family: 'Rajdhani', sans-serif;
-            overflow-x: hidden;
-            padding-bottom: 80px;
+            margin: 0; background: var(--dark); color: white;
+            font-family: 'Rajdhani', sans-serif; overflow-x: hidden;
+            padding-bottom: 90px;
         }
 
-        /* --- LOGO DO SISTEMA --- */
-        .system-header {
-            text-align: center;
-            padding: 20px 0;
-            border-bottom: 1px solid rgba(0, 210, 255, 0.2);
+        /* --- HEADER ESTILO ANIME (image_fa3e16) --- */
+        .header {
+            text-align: center; padding: 30px 0;
+            background: linear-gradient(to bottom, rgba(0, 210, 255, 0.15), transparent);
         }
-        .main-logo {
-            width: 80px; height: 80px;
-            margin: 0 auto;
-            border: 2px solid var(--blue-system);
-            border-radius: 50%;
-            box-shadow: 0 0 20px var(--blue-system);
-            display: flex; align-items: center; justify-content: center;
-            background: rgba(0, 0, 0, 0.8);
-        }
-        .main-logo::after {
-            content: "👁️"; font-size: 40px; text-shadow: 0 0 10px var(--blue-system);
+        .arise-logo {
+            font-family: 'Orbitron'; font-size: 28px; font-weight: bold;
+            letter-spacing: 5px; color: white; text-shadow: 0 0 15px var(--cyan);
         }
 
-        /* --- JANELA DE STATUS (Inspirada em image_faaf30 e image_faaf53) --- */
-        #status-window {
-            width: 90%; max-width: 450px;
-            margin: 20px auto;
-            background: var(--dark-window);
-            border: 2px solid var(--border-glow);
-            box-shadow: 0 0 30px rgba(0, 140, 255, 0.3);
-            position: relative;
+        /* --- STATUS WINDOW (image_faaf30, image_faaf53) --- */
+        .container { width: 92%; max-width: 500px; margin: 0 auto; }
+        
+        .status-box {
+            background: var(--window); border: 2px solid var(--border);
+            box-shadow: 0 0 30px rgba(0, 140, 255, 0.3); position: relative;
+            padding: 20px; margin-top: 10px;
         }
 
-        .window-title {
-            background: rgba(0, 140, 255, 0.2);
-            padding: 10px;
-            text-align: center;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 18px;
-            border-bottom: 1px solid var(--blue-system);
-            letter-spacing: 4px;
-        }
-
-        .rank-hex {
-            position: absolute; right: 20px; top: 60px;
-            width: 60px; height: 60px;
-            background: rgba(0, 210, 255, 0.1);
-            border: 2px solid var(--blue-system);
+        .rank-badge {
+            position: absolute; right: 20px; top: 20px;
+            width: 65px; height: 65px; border: 2px solid var(--cyan);
             clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
             display: flex; align-items: center; justify-content: center;
-            font-family: 'Orbitron'; font-size: 28px; color: var(--blue-system);
+            font-family: 'Orbitron'; font-size: 32px; color: var(--cyan);
+            background: rgba(0, 210, 255, 0.1);
         }
 
-        /* BARRAS HP/MP (Inspirada em image_fab1fd) */
-        .bars-section { padding: 20px; }
-        .bar-container { margin-bottom: 15px; }
-        .bar-label { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 5px; font-weight: bold; }
-        .bar-outer { height: 14px; background: #111; border: 1px solid #333; position: relative; }
-        .bar-fill { height: 100%; transition: 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
-        .hp-fill { background: var(--hp-color); box-shadow: 0 0 15px var(--hp-color); }
-        .mp-fill { background: var(--mana-color); box-shadow: 0 0 15px var(--mana-color); }
+        .lvl-tag { font-family: 'Orbitron'; font-size: 24px; color: white; }
+        .sub-tag { font-size: 14px; color: var(--cyan); text-transform: uppercase; letter-spacing: 2px; }
 
-        /* ATRIBUTOS */
-        .attr-grid {
-            display: grid; grid-template-columns: 1fr 1fr;
-            gap: 10px; padding: 0 20px 20px 20px;
-        }
-        .attr-item {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(0, 210, 255, 0.1);
-            padding: 10px; display: flex; justify-content: space-between;
-            font-family: 'Orbitron'; font-size: 12px;
-        }
-        .attr-val { color: var(--blue-system); }
+        /* --- BARRAS (image_fab1fd) --- */
+        .bar-wrap { margin-top: 20px; }
+        .bar-info { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; font-family: 'Orbitron'; }
+        .bar-outer { height: 12px; background: #000; border: 1px solid #333; }
+        .bar-inner { height: 100%; transition: 0.6s; }
+        .hp-fill { background: #ff004c; width: 100%; box-shadow: 0 0 10px #ff004c; }
+        .xp-fill { background: var(--xp); width: 0%; box-shadow: 0 0 10px var(--xp); }
 
-        /* --- QUESTS (Inspirada em image_fab21a e unnamed (1).jpg) --- */
-        .quest-box {
-            padding: 20px; text-align: center;
+        /* --- QUESTS (image_fa3e76, unnamed (1).jpg) --- */
+        .quest-card {
+            background: rgba(255,255,255,0.03); border-left: 4px solid var(--cyan);
+            padding: 15px; margin-top: 15px; display: flex; justify-content: space-between; align-items: center;
         }
-        .timer {
-            font-family: 'Orbitron'; font-size: 45px;
-            color: #fff; text-shadow: 0 0 15px var(--blue-system);
-            margin: 20px 0;
-        }
-        .goal-text { color: #ffae00; text-transform: uppercase; font-size: 14px; }
-        .counter { font-size: 70px; color: var(--blue-system); font-family: 'Orbitron'; margin: 10px 0; }
 
-        /* --- MENU --- */
-        .nav-bar {
-            position: fixed; bottom: 0; width: 100%;
-            display: flex; background: #000;
-            border-top: 1px solid var(--blue-system);
-        }
-        .nav-btn {
-            flex: 1; padding: 15px; text-align: center;
-            font-size: 12px; font-family: 'Orbitron'; color: #444;
-            cursor: pointer; transition: 0.3s;
-        }
-        .nav-btn.active { color: var(--blue-system); background: rgba(0, 210, 255, 0.1); }
+        .counter { font-size: 50px; font-family: 'Orbitron'; color: var(--cyan); line-height: 1; }
 
-        .screen { display: none; animation: fadeIn 0.4s; }
-        .active-screen { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-
-        .btn-action {
-            background: none; border: 1px solid var(--blue-system);
-            color: var(--blue-system); padding: 15px 40px;
-            font-family: 'Orbitron'; cursor: pointer;
-            text-transform: uppercase; width: 80%;
+        /* --- BÍBLIA (image_fab21a) --- */
+        .bible-section { padding: 20px 0; }
+        select {
+            width: 100%; padding: 15px; margin-bottom: 10px;
+            background: #0a0f1e; color: var(--cyan);
+            border: 1px solid var(--cyan); font-family: 'Orbitron'; outline: none;
         }
-        .btn-action:active { background: var(--blue-system); color: #000; }
+        #bible-text {
+            background: rgba(0,0,0,0.5); padding: 15px; border: 1px solid rgba(0,210,255,0.2);
+            font-size: 16px; line-height: 1.8; color: #ddd; max-height: 300px; overflow-y: auto;
+        }
+
+        /* --- NAV (unnamed (1).jpg) --- */
+        .nav {
+            position: fixed; bottom: 0; width: 100%; display: flex;
+            background: #000; border-top: 1px solid var(--cyan);
+        }
+        .nav-item {
+            flex: 1; padding: 20px; text-align: center; font-family: 'Orbitron';
+            font-size: 12px; color: #444; cursor: pointer;
+        }
+        .nav-item.active { color: var(--cyan); background: rgba(0, 210, 255, 0.05); }
+
+        .screen { display: none; }
+        .screen.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .btn-arise {
+            width: 100%; padding: 20px; margin-top: 20px;
+            background: none; border: 1px solid var(--cyan); color: var(--cyan);
+            font-family: 'Orbitron'; text-transform: uppercase; cursor: pointer;
+        }
+        .btn-arise:active { background: var(--cyan); color: #000; }
     </style>
 </head>
 <body>
 
-    <div class="system-header">
-        <div class="main-logo"></div>
-        <h2 style="font-family: 'Orbitron'; letter-spacing: 2px; font-size: 14px; margin-top: 10px; color: var(--blue-system);">SISTEMA ATIVO</h2>
+    <div class="header">
+        <div class="arise-logo">ARISE</div>
     </div>
 
-    <div id="status" class="screen active-screen">
-        <div id="status-window">
-            <div class="window-title">STATUS</div>
-            <div class="rank-hex" id="rank-val">E</div>
+    <div class="container">
+        <div id="status" class="screen active">
+            <div class="status-box">
+                <div class="rank-badge" id="rank">E</div>
+                <div class="sub-tag">Job: Shadow Monarch</div>
+                <div class="lvl-tag">LVL <span id="lvl">01</span></div>
+                
+                <div class="bar-wrap">
+                    <div class="bar-info"><span>HP</span> <span>100 / 100</span></div>
+                    <div class="bar-outer"><div class="bar-inner hp-fill"></div></div>
+                    
+                    <div class="bar-info" style="margin-top:10px;"><span>EXP</span> <span id="xp-txt">0 / 100</span></div>
+                    <div class="bar-outer"><div id="xp-bar" class="bar-inner xp-fill"></div></div>
+                </div>
+            </div>
             
-            <div style="padding: 20px 20px 0 20px;">
-                <div style="color: var(--text-muted); font-size: 12px;">NAME: SHADOW_WARRIOR</div>
-                <div style="font-size: 22px; font-family: 'Orbitron';">VAGABOND</div>
-                <div style="margin-top: 5px;">LEVEL: <span id="lvl-num" style="color: var(--blue-system);">01</span></div>
-            </div>
-
-            <div class="bars-section">
-                <div class="bar-container">
-                    <div class="bar-label"><span>HP</span> <span>100 / 100</span></div>
-                    <div class="bar-outer"><div class="bar-fill hp-fill" style="width: 100%;"></div></div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
+                <div class="status-box" style="padding: 10px; text-align: center;">
+                    <div class="sub-tag" style="font-size: 10px;">Strength</div>
+                    <div class="lvl-tag" style="font-size: 18px;" id="str">10</div>
                 </div>
-                <div class="bar-container">
-                    <div class="bar-label"><span>MP</span> <span id="mp-text">10 / 50</span></div>
-                    <div class="bar-outer"><div id="mp-bar" class="bar-fill mp-fill" style="width: 20%;"></div></div>
+                <div class="status-box" style="padding: 10px; text-align: center;">
+                    <div class="sub-tag" style="font-size: 10px;">Agility</div>
+                    <div class="lvl-tag" style="font-size: 18px;">10</div>
                 </div>
             </div>
+        </div>
 
-            <div class="attr-grid">
-                <div class="attr-item"><span>STR (FORÇA)</span> <span class="attr-val" id="st-str">10</span></div>
-                <div class="attr-item"><span>AGI (AGIL.)</span> <span class="attr-val" id="st-agi">10</span></div>
-                <div class="attr-item"><span>VIT (VITAL.)</span> <span class="attr-val" id="st-vit">10</span></div>
-                <div class="attr-item"><span>INT (INTEL.)</span> <span class="attr-val" id="st-int">10</span></div>
+        <div id="quests" class="screen">
+            <div class="status-box" style="text-align: center;">
+                <div class="sub-tag">[ Daily Quest: Training ]</div>
+                <div class="counter" id="reps">00</div>
+                <div class="sub-tag" style="color:white">FLEXÕES REALIZADAS</div>
+                <button class="btn-arise" onclick="startTracking()">Sincronizar Sensores</button>
+            </div>
+            
+            <div class="quest-card">
+                <div>
+                    <div class="sub-tag">Recompensa</div>
+                    <div style="font-size: 18px;">+10 EXP / +1 FORÇA</div>
+                </div>
+                <div style="font-size: 24px;">🎁</div>
+            </div>
+        </div>
+
+        <div id="bible" class="screen">
+            <div class="bible-section">
+                <select id="books" onchange="loadChapters()"><option>Carregando Pergaminhos...</option></select>
+                <select id="chapters" onchange="loadVerses()"><option>Capítulo</option></select>
+                <div id="bible-text">Selecione o livro para iniciar a leitura sagrada...</div>
             </div>
         </div>
     </div>
 
-    <div id="quests" class="screen">
-        <div class="quest-box">
-            <div class="window-title" style="border: 1px solid #ffae00; color: #ffae00; background: rgba(255,174,0,0.1);">MISSÃO DIÁRIA</div>
-            <div class="timer" id="clock">00:00:00</div>
-            <div class="goal-text">OBJETIVO: 20 FLEXÕES (SISTEMA DE CAMPO)</div>
-            <div class="counter" id="rep-count">00</div>
-            <button class="btn-action" onclick="startQuest()">[ INICIAR RASTREIO ]</button>
-        </div>
-    </div>
-
-    <div id="bible" class="screen">
-        <div style="padding: 20px;">
-            <div class="window-title">QUEST LOG: BÍBLIA</div>
-            <div style="background: var(--dark-window); border: 1px solid var(--blue-system); padding: 15px; margin-top: 20px;">
-                <select id="b-book" onchange="loadCh()" style="width: 100%; background: #000; color: var(--blue-system); border: 1px solid var(--blue-system); padding: 10px; margin-bottom: 10px;"></select>
-                <select id="b-cap" onchange="loadVer()" style="width: 100%; background: #000; color: var(--blue-system); border: 1px solid var(--blue-system); padding: 10px;"></select>
-                <div id="b-text" style="margin-top: 20px; font-size: 14px; line-height: 1.6; color: #cbd5e0; max-height: 300px; overflow-y: auto;">Escolha um pergaminho...</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="nav-bar">
-        <div class="nav-btn active" onclick="tab('status', this)">STATUS</div>
-        <div class="nav-btn" onclick="tab('quests', this)">QUESTS</div>
-        <div class="nav-btn" onclick="tab('bible', this)">LOG</div>
+    <div class="nav">
+        <div class="nav-item active" onclick="tab('status', this)">STATUS</div>
+        <div class="nav-item" onclick="tab('quests', this)">QUESTS</div>
+        <div class="nav-item" onclick="tab('bible', this)">BÍBLIA</div>
     </div>
 
     <script>
-        // DB OFFLINE
-        const db = {
-            "Salmos": { "23": ["O Senhor é o meu pastor...", "Deitar-me faz em verdes pastagens..."], "91": ["Aquele que habita no abrigo do Altíssimo..."] },
-            "2 Timóteo": { "2": ["Suporte comigo os meus sofrimentos, como bom soldado de Cristo Jesus."] }
-        };
+        // BÍBLIA COMPLETA VIA API (Almeida Corrigida Fiel)
+        const BIBLE_API = "https://raw.githubusercontent.com/abraham-pizarro/biblia-json/master/aa.json";
+        let bibleData = null;
 
-        let reps = 0, lvl = 1, str = 10, tracking = false, lastZ = 0;
+        async function initBible() {
+            try {
+                const res = await fetch(BIBLE_API);
+                bibleData = await res.json();
+                let options = '<option value="">LIVROS</option>';
+                bibleData.forEach((b, i) => options += `<option value="${i}">${b.name.toUpperCase()}</option>`);
+                document.getElementById('books').innerHTML = options;
+            } catch(e) { document.getElementById('bible-text').innerText = "Sistema Offline."; }
+        }
+
+        function loadChapters() {
+            const bIndex = document.getElementById('books').value;
+            if(!bIndex) return;
+            let options = '<option value="">CAPÍTULO</option>';
+            bibleData[bIndex].chapters.forEach((_, i) => options += `<option value="${i}">${i+1}</option>`);
+            document.getElementById('chapters').innerHTML = options;
+        }
+
+        function loadVerses() {
+            const b = document.getElementById('books').value;
+            const c = document.getElementById('chapters').value;
+            const verses = bibleData[b].chapters[c];
+            document.getElementById('bible-text').innerHTML = verses.map((v, i) => `<p><b style="color:var(--cyan)">${i+1}</b> ${v}</p>`).join('');
+            document.getElementById('bible-text').scrollTop = 0;
+        }
+
+        // LÓGICA DE TREINO E RANK
+        let count = 0, lvl = 1, xp = 0, str = 10, lastZ = 0;
 
         function tab(id, el) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(id).classList.add('active-screen');
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
             el.classList.add('active');
         }
 
-        function startQuest() {
-            if(!tracking) {
-                if (typeof DeviceMotionEvent.requestPermission === 'function') {
-                    DeviceMotionEvent.requestPermission().then(p => { if(p == 'granted') tracking = true; });
-                } else { tracking = true; }
-                window.addEventListener('devicemotion', motion);
-                alert("SISTEMA: Rastreio de Movimento Conectado.");
-            }
+        function startTracking() {
+            if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                DeviceMotionEvent.requestPermission().then(p => { if(p === 'granted') window.addEventListener('devicemotion', motion); });
+            } else { window.addEventListener('devicemotion', motion); }
+            alert("SISTEMA: Sensores de movimento vinculados ao Jogador.");
         }
 
         function motion(e) {
             let z = e.accelerationIncludingGravity.z;
             if (Math.abs(z - lastZ) > 12) {
-                reps++;
-                document.getElementById('rep-count').innerText = reps.toString().padStart(2, '0');
-                if(reps % 5 == 0) up();
+                count++; xp += 10;
+                document.getElementById('reps').innerText = count.toString().padStart(2, '0');
+                if(xp >= 100) { 
+                    xp = 0; lvl++; str += 2;
+                    document.getElementById('lvl').innerText = lvl.toString().padStart(2, '0');
+                    document.getElementById('str').innerText = str;
+                    if(lvl >= 5) document.getElementById('rank').innerText = "D";
+                    if(lvl >= 10) document.getElementById('rank').innerText = "C";
+                    alert("LEVEL UP! Suas habilidades aumentaram.");
+                }
+                document.getElementById('xp-bar').style.width = xp + "%";
+                document.getElementById('xp-txt').innerText = xp + " / 100";
             }
             lastZ = z;
         }
 
-        function up() {
-            lvl++; str += 5;
-            document.getElementById('lvl-num').innerText = lvl.toString().padStart(2, '0');
-            document.getElementById('st-str').innerText = str;
-            document.getElementById('mp-bar').style.width = (lvl * 10) + "%";
-            document.getElementById('mp-text').innerText = (lvl * 10) + " / 50";
-            if(lvl >= 5) document.getElementById('rank-val').innerText = "D";
-        }
-
-        function loadB() {
-            let h = '<option>LIVRO</option>';
-            for(let k in db) h += `<option value="${k}">${k}</option>`;
-            document.getElementById('b-book').innerHTML = h;
-        }
-        function loadCh() {
-            let k = document.getElementById('b-book').value;
-            let h = '<option>CAP</option>';
-            for(let c in db[k]) h += `<option value="${c}">${c}</option>`;
-            document.getElementById('b-cap').innerHTML = h;
-        }
-        function loadVer() {
-            let k = document.getElementById('b-book').value;
-            let c = document.getElementById('b-cap').value;
-            document.getElementById('b-text').innerHTML = db[k][c].join('<br><br>');
-        }
-
-        setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
-        window.onload = loadB;
+        window.onload = initBible;
     </script>
 </body>
 </html>
