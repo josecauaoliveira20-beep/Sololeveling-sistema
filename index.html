@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Solo Leveling: System Workout</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils"></script>
+  
+  <style>
+    body { margin: 0; background: #000; color: #00e5ff; font-family: 'Courier New', monospace; overflow: hidden; }
+    #video-container { position: relative; width: 100vw; height: 100vh; }
+    canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; z-index: 1; }
+    video { width: 100%; height: 100%; object-fit: cover; opacity: 0.6; }
+    
+    /* Interface Solo Leveling */
+    .hud { position: absolute; top: 20px; left: 20px; z-index: 2; border-left: 4px solid #00e5ff; padding-left: 10px; background: rgba(0,0,0,0.5); }
+    .stat-bar { width: 200px; height: 10px; border: 1px solid #00e5ff; margin-top: 5px; }
+    .xp-fill { width: 0%; height: 100%; background: #00e5ff; transition: 0.3s; }
+    #counter { font-size: 3em; font-weight: bold; text-shadow: 0 0 10px #00e5ff; }
+  </style>
+</head>
+<body>
+
+<div id="video-container">
+  <video id="input_video"></video>
+  <canvas id="output_canvas"></canvas>
+  
+  <div class="hud">
+    <div>JOGADOR: CAUÃ</div>
+    <div>NÍVEL: <span id="lvl">1</span></div>
+    <div id="counter">00</div>
+    <div>XP DA MISSÃO</div>
+    <div class="stat-bar"><div id="xp-bar" class="xp-fill"></div></div>
+    <div id="status" style="margin-top:10px; font-size: 0.8em;">AGUARDANDO MOVIMENTO...</div>
+  </div>
+</div>
+
+<script>
+const videoElement = document.getElementById('input_video');
+const canvasElement = document.getElementById('output_canvas');
+const canvasCtx = canvasElement.getContext('2d');
+const xpBar = document.getElementById('xp-bar');
+const lvlText = document.getElementById('lvl');
+const counterText = document.getElementById('counter');
+const statusText = document.getElementById('status');
+
+let count = 0;
+let stage = 'up';
+let xp = 0;
+let nivel = 1;
+
+function onResults(results) {
+  canvasCtx.save();
+  canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+  
+  // Desenha os pontos do corpo
+  drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {color: '#00e5ff', lineWidth: 2});
+  drawLandmarks(canvasCtx, results.poseLandmarks, {color: '#ffffff', lineWidth: 1, radius: 2});
+
+  if (results.poseLandmarks) {
+    const landmarks = results.poseLandmarks;
+    // Ponto 11: Ombro, 13: Cotovelo, 15: Pulso
+    const shoulder = landmarks[11];
+    const elbow = landmarks[13];
+    const wrist = landmarks[15];
+
+    // Lógica simples de ângulo (Simplificada para mobile)
+    if (elbow.y > shoulder.y + 0.1) { // Desceu
+      if (stage === 'up') {
+          statusText.innerText = "EXECUTANDO...";
+          stage = 'down';
+      }
+    }
+    if (elbow.y < shoulder.y + 0.05 && stage === 'down') { // Subiu
+        stage = 'up';
+        count++;
+        xp += 20;
+        if(xp >= 100) { xp = 0; nivel++; lvlText.innerText = nivel; }
+        
+        counterText.innerText = count.toString().padStart(2, '0');
+        xpBar.style.width = xp + "%";
+        statusText.innerText = "MISSÃO COMPLETA!";
+    }
+  }
+  canvasCtx.restore();
+}
+
+const pose = new Pose({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`});
+pose.setOptions({ modelComplexity: 1, smoothLandmarks: true, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
+pose.onResults(onResults);
+
+const camera = new Camera(videoElement, {
+  onFrame: async () => { await pose.send({image: videoElement}); },
+  width: 640, height: 480
+});
+camera.start();
+</script>
+</body>
+</html>
