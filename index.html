@@ -1,100 +1,153 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
-  <title>Solo Leveling: System Workout</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils"></script>
-  
-  <style>
-    body { margin: 0; background: #000; color: #00e5ff; font-family: 'Courier New', monospace; overflow: hidden; }
-    #video-container { position: relative; width: 100vw; height: 100vh; }
-    canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; z-index: 1; }
-    video { width: 100%; height: 100%; object-fit: cover; opacity: 0.6; }
-    
-    /* Interface Solo Leveling */
-    .hud { position: absolute; top: 20px; left: 20px; z-index: 2; border-left: 4px solid #00e5ff; padding-left: 10px; background: rgba(0,0,0,0.5); }
-    .stat-bar { width: 200px; height: 10px; border: 1px solid #00e5ff; margin-top: 5px; }
-    .xp-fill { width: 0%; height: 100%; background: #00e5ff; transition: 0.3s; }
-    #counter { font-size: 3em; font-weight: bold; text-shadow: 0 0 10px #00e5ff; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solo Leveling: Eternal System</title>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --neon: #00e5ff; --bg: #050505; --punish: #ff0055; }
+        body { margin: 0; background: var(--bg); color: white; font-family: 'Orbitron', sans-serif; overflow: hidden; }
+        
+        #menu { position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .btn-missao { background: rgba(0,229,255,0.1); border: 1px solid var(--neon); color: var(--neon); padding: 15px; margin: 8px; width: 85%; font-size: 14px; text-transform: uppercase; cursor: pointer; transition: 0.3s; }
+        .btn-missao:active { background: var(--neon); color: black; }
+        
+        .status-header { margin-bottom: 20px; border: 1px solid var(--neon); padding: 15px; width: 80%; box-shadow: 0 0 15px rgba(0,229,255,0.3); }
+
+        /* HUD Punição */
+        #punishment-screen { position: absolute; width: 100%; height: 100%; background: rgba(50,0,0,0.9); z-index: 20; display: none; flex-direction: column; align-items: center; justify-content: center; border: 10px double var(--punish); box-sizing: border-box; }
+        
+        #video-container { position: relative; width: 100vw; height: 100vh; display: none; }
+        video, canvas { position: absolute; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+        .xp-bar { position: absolute; bottom: 20px; left: 10%; width: 80%; height: 8px; border: 1px solid var(--neon); z-index: 5; background: rgba(0,0,0,0.5); }
+        #xp-fill { width: 0%; height: 100%; background: var(--neon); box-shadow: 0 0 10px var(--neon); transition: 0.4s; }
+    </style>
 </head>
 <body>
 
-<div id="video-container">
-  <video id="input_video"></video>
-  <canvas id="output_canvas"></canvas>
-  
-  <div class="hud">
-    <div>JOGADOR: CAUÃ</div>
-    <div>NÍVEL: <span id="lvl">1</span></div>
-    <div id="counter">00</div>
-    <div>XP DA MISSÃO</div>
-    <div class="stat-bar"><div id="xp-bar" class="xp-fill"></div></div>
-    <div id="status" style="margin-top:10px; font-size: 0.8em;">AGUARDANDO MOVIMENTO...</div>
-  </div>
+<div id="punishment-screen">
+    <h1 style="color: var(--punish); text-shadow: 0 0 20px var(--punish);">PUNIÇÃO DO SISTEMA</h1>
+    <p style="padding: 20px;">VOCÊ FALHOU EM MANTER A DISCIPLINA. XP REDUZIDO.</p>
+    <button class="btn-missao" style="border-color: var(--punish); color: var(--punish);" onclick="aceitarPunicao()">ACEITAR E CONTINUAR</button>
 </div>
 
-<script>
-const videoElement = document.getElementById('input_video');
-const canvasElement = document.getElementById('output_canvas');
-const canvasCtx = canvasElement.getContext('2d');
-const xpBar = document.getElementById('xp-bar');
-const lvlText = document.getElementById('lvl');
-const counterText = document.getElementById('counter');
-const statusText = document.getElementById('status');
+<div id="menu">
+    <div class="status-header">
+        <h1 style="margin:0; font-size: 20px; color: var(--neon);">STATUS DO JOGADOR</h1>
+        <div id="player-lvl" style="font-size: 24px; margin: 10px 0;">NÍVEL: 01</div>
+        <div id="xp-text" style="font-size: 12px; color: var(--neon);">XP: 0/100</div>
+    </div>
+    <button class="btn-missao" onclick="iniciarTreino('flexao')">Missão: Flexões</button>
+    <button class="btn-missao" onclick="iniciarTreino('agachamento')">Missão: Agachamentos</button>
+    <label class="btn-missao" style="display: block; width: 77%;">
+        <input type="file" id="musicInput" accept="audio/*" multiple style="display:none">
+        Músicas do Celular 🎵
+    </label>
+</div>
 
+<div id="video-container">
+    <video id="input_video"></video>
+    <canvas id="output_canvas"></canvas>
+    <div class="xp-bar"><div id="xp-fill"></div></div>
+</div>
+
+<audio id="bgMusic" loop></audio>
+
+<script>
+let xp = parseInt(localStorage.getItem('system_xp')) || 0;
+let level = parseInt(localStorage.getItem('system_level')) || 1;
+let lastTrain = localStorage.getItem('last_train_date');
 let count = 0;
 let stage = 'up';
-let xp = 0;
-let nivel = 1;
 
-function onResults(results) {
-  canvasCtx.save();
-  canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-  
-  // Desenha os pontos do corpo
-  drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {color: '#00e5ff', lineWidth: 2});
-  drawLandmarks(canvasCtx, results.poseLandmarks, {color: '#ffffff', lineWidth: 1, radius: 2});
-
-  if (results.poseLandmarks) {
-    const landmarks = results.poseLandmarks;
-    // Ponto 11: Ombro, 13: Cotovelo, 15: Pulso
-    const shoulder = landmarks[11];
-    const elbow = landmarks[13];
-    const wrist = landmarks[15];
-
-    // Lógica simples de ângulo (Simplificada para mobile)
-    if (elbow.y > shoulder.y + 0.1) { // Desceu
-      if (stage === 'up') {
-          statusText.innerText = "EXECUTANDO...";
-          stage = 'down';
-      }
-    }
-    if (elbow.y < shoulder.y + 0.05 && stage === 'down') { // Subiu
-        stage = 'up';
-        count++;
-        xp += 20;
-        if(xp >= 100) { xp = 0; nivel++; lvlText.innerText = nivel; }
+// Lógica de Punição
+function verificarPunicao() {
+    if (lastTrain) {
+        let diff = Date.now() - parseInt(lastTrain);
+        let horas = diff / (1000 * 60 * 60);
         
-        counterText.innerText = count.toString().padStart(2, '0');
-        xpBar.style.width = xp + "%";
-        statusText.innerText = "MISSÃO COMPLETA!";
+        if (horas > 24) {
+            xp = Math.max(0, xp - 30); // Perde 30 de XP
+            document.getElementById('punishment-screen').style.display = 'flex';
+            falar("Aviso. Você foi punido por negligência. XP reduzido.");
+            salvarProgresso();
+        }
     }
-  }
-  canvasCtx.restore();
 }
 
-const pose = new Pose({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`});
-pose.setOptions({ modelComplexity: 1, smoothLandmarks: true, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
-pose.onResults(onResults);
+function aceitarPunicao() {
+    document.getElementById('punishment-screen').style.display = 'none';
+    atualizarUI();
+}
 
-const camera = new Camera(videoElement, {
-  onFrame: async () => { await pose.send({image: videoElement}); },
-  width: 640, height: 480
+function salvarProgresso() {
+    localStorage.setItem('system_level', level);
+    localStorage.setItem('system_xp', xp);
+    localStorage.setItem('last_train_date', Date.now().toString());
+}
+
+function atualizarUI() {
+    document.getElementById('player-lvl').innerText = "NÍVEL: " + level.toString().padStart(2, '0');
+    document.getElementById('xp-text').innerText = `XP: ${xp}/100`;
+    document.getElementById('xp-fill').style.width = xp + "%";
+}
+
+function falar(t) {
+    const s = new SpeechSynthesisUtterance(t);
+    s.lang = 'pt-BR';
+    window.speechSynthesis.speak(s);
+}
+
+// Configuração de Música
+const musicInput = document.getElementById('musicInput');
+const bgMusic = document.getElementById('bgMusic');
+musicInput.onchange = (e) => {
+    const url = URL.createObjectURL(e.target.files[0]);
+    bgMusic.src = url;
+};
+
+function iniciarTreino(tipo) {
+    tipoTreino = tipo;
+    document.getElementById('menu').style.display = 'none';
+    document.getElementById('video-container').style.display = 'block';
+    if(bgMusic.src) bgMusic.play();
+    falar("Iniciando monitoramento de " + tipo);
+    startCamera();
+}
+
+// MediaPipe e Lógica de Movimento (Igual ao anterior...)
+const pose = new Pose({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`});
+pose.setOptions({ modelComplexity: 1, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
+pose.onResults((results) => {
+    if (results.poseLandmarks) {
+        const lm = results.poseLandmarks;
+        let detect = (tipoTreino === 'flexao') ? (lm[13].y > lm[11].y + 0.1) : (lm[25].y < lm[23].y + 0.15);
+        
+        if (detect && stage === 'up') stage = 'down';
+        if (!detect && stage === 'down') {
+            stage = 'up';
+            count++;
+            xp += 10;
+            if(xp >= 100) { xp = 0; level++; falar("Level up!"); }
+            atualizarUI();
+            salvarProgresso();
+        }
+    }
 });
-camera.start();
+
+function startCamera() {
+    new Camera(document.getElementById('input_video'), {
+        onFrame: async () => { await pose.send({image: document.getElementById('input_video')}); },
+        width: 640, height: 480
+    }).start();
+}
+
+verificarPunicao();
+atualizarUI();
 </script>
 </body>
 </html>
